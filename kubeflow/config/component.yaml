@@ -1,9 +1,11 @@
 name: "Kubeflow - Echo Pipeline"
 description: "Test to illustrate making components correctly."
+
 inputs:
   - {name: Echo, type: String, default: 'Echo pipeline is functional'}
 outputs:
   - {name: Output, type: String }
+
 implementation:
   container:
     image: k8scc01covidacr.azurecr.io/echo
