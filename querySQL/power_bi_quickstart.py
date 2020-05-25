@@ -2,6 +2,9 @@
 
 ###################################
 #
+#  Download data into PowerBI through SQL
+#  ======================================
+#
 #  BEFORE YOU RUN THIS:
 #
 #      1. Install boto3, pandas, and numpy.

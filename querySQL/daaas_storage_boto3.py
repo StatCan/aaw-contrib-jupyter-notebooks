@@ -1,5 +1,58 @@
 #!/usr/bin/env python3
 
+#########################################
+###                                   ###
+###       daaas_storage_boto3.py      ###
+###       ~~~~~~~~~~~~~~~~~~~~~~      ###
+###                                   ###
+###   Import this from your notebook  ###
+###   to easily access your storage   ###
+###                                   ###
+#########################################
+
+####################
+###      API     ###
+####################
+###
+###  s3 = get_minimal_client()     # return a boto3 object 
+###  s3 = get_pachyderm_client()   # return a boto3 object  
+###  s3 = get_premium_client()     # return a boto3 object   
+###
+###  See: https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-examples.html
+
+#################
+###  Warning  ###
+#################
+##    ________________________________________ 
+##   /                                        \
+##   |    The code below is not interesting.  |
+##   |                                        |
+##   |    Refer to the .ipynb or .Rmd files   |
+##   |    for more detailed examples.         |
+##   |                                        |
+##   |    The API for this code is above.     |
+##   |    The code below needn't be edited.   |
+##   \                                        /
+##    ---------------------------------------- 
+##         \                    / \  //\
+##          \    |\___/|      /   \//  \\
+##               /0  0  \__  /    //  | \ \    
+##              /     /  \/_/    //   |  \  \  
+##              @_^_@'/   \/_   //    |   \   \ 
+##              //_^_/     \/_ //     |    \    \
+##           ( //) |        \///      |     \     \
+##         ( / /) _|_ /   )  //       |      \     _\
+##       ( // /) '/,_ _ _/  ( ; -.    |    _ _\.-~        .-~~~^-.
+##     (( / / )) ,-{        _      `-.|.-~-.           .~         `.
+##    (( // / ))  '/\      /                 ~-. _ .-~      .-~^-.  \
+##    (( /// ))      `.   {            }                   /      \  \
+##     (( / ))     .----~-.\        \-'                 .~         \  `. \^-.
+##                ///.----..>        \             _ -~             `.  ^-`  ^-_
+##                  ///-._ _ _ _ _ _ _}^ - - - - ~                     ~-- ,.-~
+##                                                                     /.-~
+
+
+
 import subprocess
 import boto3
 from os import remove

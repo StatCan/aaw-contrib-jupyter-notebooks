@@ -1,3 +1,79 @@
+#########################################
+###                                   ###
+###          daaas_storage.R          ###
+###          ~~~~~~~~~~~~~~~          ###
+###                                   ###
+###   Source this from your notebook  ###
+###   to easily access your storage   ###
+###                                   ###
+#########################################
+
+
+###########################
+###         API         ###
+###########################
+###
+###   daaas_storage.minimal()      returns NULL
+###   daaas_storage.premium()      returns NULL
+###   daaas_storage.pachyderm()    returns NULL
+###
+###
+
+
+###########################
+###    Usage Example    ###
+###########################
+###
+###    source("daaas_storage.R")
+###
+###    # Choose from
+###
+###    daaas_storage.minimal()
+###    # daaas_storage.premium()
+###    # daaas_storage.pachyderm()
+###
+###    ### Note, unlike the python version, these functions 
+###    ### modify the global option, instead of returning a
+###    ### connection.
+###
+###    # Example:
+###    get_bucket(bucket = "shared", use_https=FALSE, region="")
+###
+
+
+#################
+###  Warning  ###
+#################
+##    ________________________________________ 
+##   /                                        \
+##   |    The code below is not interesting.  |
+##   |                                        |
+##   |    Refer to the .ipynb or .Rmd files   |
+##   |    for more detailed examples.         |
+##   |                                        |
+##   |    The API for this code is above.     |
+##   |    The code below needn't be edited.   |
+##   \                                        /
+##    ---------------------------------------- 
+##         \                    / \  //\
+##          \    |\___/|      /   \//  \\
+##               /0  0  \__  /    //  | \ \    
+##              /     /  \/_/    //   |  \  \  
+##              @_^_@'/   \/_   //    |   \   \ 
+##              //_^_/     \/_ //     |    \    \
+##           ( //) |        \///      |     \     \
+##         ( / /) _|_ /   )  //       |      \     _\
+##       ( // /) '/,_ _ _/  ( ; -.    |    _ _\.-~        .-~~~^-.
+##     (( / / )) ,-{        _      `-.|.-~-.           .~         `.
+##    (( // / ))  '/\      /                 ~-. _ .-~      .-~^-.  \
+##    (( /// ))      `.   {            }                   /      \  \
+##     (( / ))     .----~-.\        \-'                 .~         \  `. \^-.
+##                ///.----..>        \             _ -~             `.  ^-`  ^-_
+##                  ///-._ _ _ _ _ _ _}^ - - - - ~                     ~-- ,.-~
+##                                                                     /.-~
+
+
+
 # Source the s3 storage secrets and urls.
 
 get_bash_variable <- function (location, var) {
