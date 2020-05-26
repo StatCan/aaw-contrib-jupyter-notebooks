@@ -1,6 +1,6 @@
-# Kubeflow Pipelines: Simple MapReduce Example
+**Tutorial Difficulty: Beginner**
 
-**Difficulty: Beginner**
+# Kubeflow Pipelines: Simple MapReduce Example
 
 This minimal pipeline makes a Monte Carlo estimate for pi.
 
