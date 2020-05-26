@@ -1,5 +1,30 @@
 #!/usr/bin/env python3
 
+#########################################
+###                                   ###
+###       daaas_storage_boto3.py      ###
+###       ~~~~~~~~~~~~~~~~~~~~~~      ###
+###                                   ###
+###   Import this from your notebook  ###
+###   to easily access your storage   ###
+###                                   ###
+#########################################
+
+####################
+###      API     ###
+####################
+###
+###  s3 = get_minimal_client()     # return a boto3 object 
+###  s3 = get_pachyderm_client()   # return a boto3 object  
+###  s3 = get_premium_client()     # return a boto3 object   
+###
+###  df    = pandas_from_json(r, *args, **kwargs)  # wrapper for pandas.read_json
+###  table = arrow_from_json(r, *args, **kwargs)   # wrapper for pyarrow.json.read
+###  df    = pandas_from_csv(r, *args, **kwargs)   # wrapper for pandas.read_csv
+###  table = arrow_from_csv(r, *args, **kwargs)    # wrapper for pyarrow.read_csv
+###
+###  See: https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-examples.html
+
 import subprocess
 import boto3
 from os import remove

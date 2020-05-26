@@ -1,5 +1,55 @@
 #!/usr/bin/env python3
 
+#########################################
+###                                   ###
+###          daaas_storage.py         ###
+###          ~~~~~~~~~~~~~~~~         ###
+###                                   ###
+###   Import this from your notebook  ###
+###   to easily access your storage   ###
+###                                   ###
+#########################################
+
+####################
+###      API     ###
+####################
+###
+###  minio_client =  get_minimal_client()      # return a Minio object 
+###  minio_client =  get_pachyderm_client()    # return a Minio object  
+###  minio_client =  get_premium_client()      # return a Minio object   
+###
+###  See: https://github.com/minio/minio-py
+
+###########################
+###    Usage Example    ###
+###########################
+###
+###    import daaas_storage.py
+###
+###    # Choose from
+###    minio_client = get_minimal_client():
+###    # minio_client = get_pachyderm_client():    
+###    # minio_client = get_premium_client():
+###
+###
+###    # This minio client is from minio-py, and you can use it
+###    # for and s3 purpose
+###    # See https://github.com/minio/minio-py
+###
+###
+###    # Example:
+###    objects = minio_client.list_objects(
+###        "shared", 
+###        prefix='blair-drummond/',
+###        recursive=True
+###          )
+###    
+###    for obj in objects:
+###        print(obj.bucket_name, obj.object_name.encode('utf-8'), obj.last_modified,
+###              obj.etag, obj.size, obj.content_type)
+###
+###
+
 import subprocess
 from minio import Minio
 import os
