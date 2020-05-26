@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # Randomly picks an (x,y) point inside a 2x2 square then returns 
 # whether that point resides inside a unit circle (circle with r=1)
@@ -13,6 +13,9 @@
 # Input:
 #     --params  Json string containing integer "seed"
 #     --output  (optional) Output bucket/folder
+#     --sleep   (optional) Sleep for this many seconds before working.  
+#               Useful to make a longer process to highlight whether the
+#               average step is in a race condition with sample.
 #
 # Output:
 #     ./output/in.json
@@ -29,6 +32,12 @@
 # Settings (probably don't need to change these)
 HOST_ALIAS="ARIBTRARY-HOST-ALIAS-FOR-MINIO-MOUNT"
 OUTPUT_LOCAL_DIR=./output
+MINIO_URL="http://$MINIO_URL"
+
+
+echo "Received command line args:"
+echo $@
+echo "---------------------------"
 
 
 # Parse input arguments
@@ -44,6 +53,11 @@ while test -n "$1"; do
             JSON="$1"
             ;;
 
+        --sleep)
+            shift
+            echo "Sleeping for ${1}s"
+            sleep $1
+            ;;
         *)
             echo "Invalid option $1; allowed: --params --options" >&2
             exit 1
@@ -65,10 +79,16 @@ mkdir -p $OUTPUT_LOCAL_DIR
 echo "Input: "
 echo "$JSON" | jq '.' | tee $OUTPUT_LOCAL_DIR/in.json
 
-
 # In the circle?
 echo "Output: "
 SEED=$(jq -rn "$JSON | .seed")
+if [ $? -ne 0 ]
+then
+    echo "Invalid input to --params.  Must be a json string with key seed"
+    exit 1
+fi
+
+
 awk -v seed=$SEED 'BEGIN {
        srand(seed);
        x = rand() * 2 - 1;
@@ -77,6 +97,8 @@ awk -v seed=$SEED 'BEGIN {
        printf("{ \"x\" : %.3f, \"y\" : %.3f, \"result\" : %d }\n", x, y, result);
 }' | tee $OUTPUT_LOCAL_DIR/out.json
 echo "Result written to $OUTPUT_LOCAL_DIR/out.json"
+
+echo "Minio OUTPUT before processing = '$OUTPUT'"
 
 # If required, push results to Minio
 if [ -n "${OUTPUT}" ]
@@ -91,6 +113,11 @@ then
 
     mc config host add $HOST_ALIAS \
         "$MINIO_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+    if [ $? -ne 0 ]
+    then
+        echo "Failed to push all files to minio.  Check above errors from minio"
+        exit 1
+    fi
 
     echo copying to minio storage with command:
     echo mc cp $OUTPUT_LOCAL_DIR/* "$HOST_ALIAS/$OUTPUT"

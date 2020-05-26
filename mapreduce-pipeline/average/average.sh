@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # Computes 4*average of one or more numbers provided as JSON input arguments
 # 
@@ -22,7 +22,7 @@
 HOST_ALIAS="ARIBTRARY-HOST-ALIAS-FOR-MINIO-MOUNT"
 OUTPUT_LOCAL_DIR=./output
 LOCAL_INPUT_STORAGE=./input.txt
-
+MINIO_URL="http://$MINIO_URL"
 
 # Remove input/output swap files, just in case (only really needed for local development)
 rm -r $OUTPUT_LOCAL_DIR
@@ -37,13 +37,26 @@ connect_minio()
             "$MINIO_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
         mc config host add $HOST_ALIAS \
             "$MINIO_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+        if [ $? -ne 0 ]
+        then
+            echo "Failed to push all files to minio.  Check above errors from minio"
+            exit 1
+        fi
         MINIO_CONNECTED=1
+
     fi
 }
 
 
+echo "Received command line args:"
+echo $@
+echo "---------------------------"
+
+
 # Parse inputs
+
 MINIO_PATHS=()
+
 while test -n "$1"; do
     case "$1" in
         --output)
@@ -78,8 +91,16 @@ done
 for mpath in ${MINIO_PATHS[@]}; 
 do
     connect_minio
-    this_result=`mc cat "$HOST_ALIAS/$mpath" | jq .result`
-    printf '%d\n' $this_result >> $LOCAL_INPUT_STORAGE
+
+    # Not sure how to make the printf below show a failure code if mc fails, so test first then get
+    mc ls "$HOST_ALIAS/$mpath"
+    if [ $? -ne 0 ]
+    then
+        echo "Failed to push all files to minio.  Check above errors from minio"
+        exit 1
+    fi
+    printf '%d\n' `mc cat "$HOST_ALIAS/$mpath" | jq .result` >> $LOCAL_INPUT_STORAGE
+
 done
 
 
@@ -116,7 +137,6 @@ then
     echo copying to minio storage with command:
     echo mc cp $OUTPUT_LOCAL_DIR/* "$HOST_ALIAS/$OUTPUT"
     mc cp $OUTPUT_LOCAL_DIR/* "$HOST_ALIAS/$OUTPUT"
-    # Test for success
     if [ $? -ne 0 ]
     then
         echo "Failed to push all files to minio.  Check above errors from minio"
