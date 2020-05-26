@@ -20,7 +20,6 @@
 ###
 ###  See: https://github.com/minio/minio-py
 
-
 ###########################
 ###    Usage Example    ###
 ###########################
@@ -50,9 +49,6 @@
 ###              obj.etag, obj.size, obj.content_type)
 ###
 ###
-
-
-
 
 import subprocess
 from minio import Minio

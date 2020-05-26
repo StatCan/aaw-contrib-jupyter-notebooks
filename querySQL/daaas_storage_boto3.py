@@ -25,9 +25,6 @@
 ###
 ###  See: https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-examples.html
 
-
-
-
 import subprocess
 import boto3
 from os import remove

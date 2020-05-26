@@ -8,7 +8,6 @@
 ###                                   ###
 #########################################
 
-
 ###########################
 ###         API         ###
 ###########################
@@ -18,7 +17,6 @@
 ###   daaas_storage.pachyderm()    returns NULL
 ###
 ###
-
 
 ###########################
 ###    Usage Example    ###
@@ -40,9 +38,7 @@
 ###    get_bucket(bucket = "shared", use_https=FALSE, region="")
 ###
 
-
 # Source the s3 storage secrets and urls.
-
 get_bash_variable <- function (location, var) {
     system(
         sprintf(
