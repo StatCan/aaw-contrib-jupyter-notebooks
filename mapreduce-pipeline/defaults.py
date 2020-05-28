@@ -1,5 +1,18 @@
 #!/usr/bin/env python3
 
+#############################################################################
+#                                                                           #
+#  This code just configures your storage for Kubeflow pipelines better.    #
+#                                                                           #
+#  NOTE: You need to make sure that MINIO_SECRET, MINIO_URL are set before  #
+#        running. This is done if you run                                   #
+#                                                                           #
+#  $ source /vault/secrets/minio-minimal-tenant1                            #
+#                                                                           #
+#  If you run the source command after starting the notebook, you might     #
+#  need to restart the jupyter kernel.                                      #
+#                                                                           #
+#############################################################################
 
 from kfp import dsl
 from kubernetes import client as k8s_client

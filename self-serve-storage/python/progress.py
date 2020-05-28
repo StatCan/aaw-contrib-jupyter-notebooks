@@ -1,3 +1,8 @@
+####################################
+###  Progress bar for Minio      ###
+###  (Optional)                  ###
+####################################
+
 # -*- coding: utf-8 -*-
 # MinIO Python Library for Amazon S3 Compatible Cloud Storage,
 # (C) 2018 MinIO, Inc.

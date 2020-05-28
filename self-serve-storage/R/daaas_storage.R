@@ -1,5 +1,44 @@
-# Source the s3 storage secrets and urls.
+#########################################
+###                                   ###
+###          daaas_storage.R          ###
+###          ~~~~~~~~~~~~~~~          ###
+###                                   ###
+###   Source this from your notebook  ###
+###   to easily access your storage   ###
+###                                   ###
+#########################################
 
+###########################
+###         API         ###
+###########################
+###
+###   daaas_storage.minimal()      returns NULL
+###   daaas_storage.premium()      returns NULL
+###   daaas_storage.pachyderm()    returns NULL
+###
+###
+
+###########################
+###    Usage Example    ###
+###########################
+###
+###    source("daaas_storage.R")
+###
+###    # Choose from
+###
+###    daaas_storage.minimal()
+###    # daaas_storage.premium()
+###    # daaas_storage.pachyderm()
+###
+###    ### Note, unlike the python version, these functions 
+###    ### modify the global option, instead of returning a
+###    ### connection.
+###
+###    # Example:
+###    get_bucket(bucket = "shared", use_https=FALSE, region="")
+###
+
+# Source the s3 storage secrets and urls.
 get_bash_variable <- function (location, var) {
     system(
         sprintf(
