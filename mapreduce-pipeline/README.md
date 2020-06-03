@@ -1,29 +1,31 @@
+**Tutorial Difficulty: Beginner**
+
 # Kubeflow Pipelines: Simple MapReduce Example
 
 This minimal pipeline makes a Monte Carlo estimate for pi.
 
 **What does it do?**
 
-- Executes a very parallel map step
-- One aggregate step
-- It passes all inputs and outputs as `json`.
-- Stores all the output data in `minio` storage.
+- Applies a map-reduce pattern by:
+	1. (map) executing a very parallel first step
+	2. (reduce) aggregating all results from (1) in a second step
+- It passes all inputs and outputs as `json` strings.
 
-## The map step
+## The map step(s)
 
-This pipeline has two images, the **map** image, which generates one guess; it
-generates a uniform-random number in the square $[-1,1]^2$, and then it guesses
-`4` if $x^2 + y^2 \leq 1$, and $0$ otherwise. (One can see that there is a $\pi
-\over 4$ chance of falling in the circle, so this gives an estimate for pi.)
+The **sample** container is used by the map step.  It generates a uniform-random number in the square $[-1,1]^2$, and then returns:
+* `1` if $x^2 + y^2 \leq 1$
+* `0` otherwise
+
+The **sample** step has a $\pi \over 4$ chance of falling in the circle
 
 ## The reduce step
 
-The reduce step simply averages the guesses over all the samples.
+The reduce step uses the **average** image to compute 4x the average of the results from the **sample** steps.  
 
 # How to run it
 
-Simply set `export MINIO_SECRET=XXXXXX` in your Jupyter notebook (in Kubeflow)
-and then run the script `compute-pi.py`. Check Kubeflow to see the progress!
+Check out Compute-Pi.ipynb!
 
 # How do I make my own Map Reduce Pipeline?
 
