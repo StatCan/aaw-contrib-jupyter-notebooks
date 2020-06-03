@@ -1,6 +1,6 @@
-FROM alpine
+FROM python:3.8-buster
 
-RUN apk add --no-cache wget jq bash
+COPY average.py /average.py
+RUN chmod a+x /average.py
 
-COPY average.sh /average.sh
-ENTRYPOINT ["/average.sh"]
+ENTRYPOINT ["python", "./average.py"]

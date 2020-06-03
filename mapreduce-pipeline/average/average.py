@@ -1,39 +1,34 @@
 import argparse
-import json
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Returns the average of one or more numbers as a JSON file")
     parser.add_argument(
-    "numbers",
-    type=float,
-    nargs="+",
-    help="One or more numbers",
+        "numbers",
+        type=float,
+        nargs="+",
+        help="One or more numbers",
     )
     parser.add_argument(
         "--output_file",
         type=str,
-        default="out.json",
-        help="Filename to write JSON results to",
+        default="out.txt",
+        help="Filename to write output number to",
     )
-    # parser.add_argument(
-    #     "--number_key",
-    #     type=str,
-    #     default="result",
-    #     help="Key in numbers JSON strings to pull the numbers from for averaging.  Default is 'result'"
-    # )
     return parser.parse_args()
 
 
 def main(output_file, numbers):
+    print(f"Averaging numbers: {numbers}")
     avg = sum(numbers) / len(numbers)
+    print(f"Result = {avg}")
 
+    print(f"Writing output to {output_file}")
     with open(output_file, 'w') as fout:
-        json.dump()
-
+        fout.write(str(avg))
 
 
 if __name__ == '__main__':
     args = parse_args()
     main(output_file=args.output_file, numbers=args.numbers)
-
+    print("Done")
