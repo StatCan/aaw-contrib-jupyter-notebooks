@@ -4,10 +4,10 @@ import json
 def parse_args():
     parser = argparse.ArgumentParser(description="Returns the average of one or more numbers as a JSON file")
     parser.add_argument(
-        "numbers",
-        type=float,
+        "jsons",
+        type=str,
         nargs="+",
-        help="One or more numbers",
+        help="One or more json inputs with a 'result' field",
     )
     parser.add_argument(
         "--output_file",
@@ -28,10 +28,12 @@ def compute_average(numbers):
 
 if __name__ == '__main__':
     args = parse_args()
-    main(output_file=args.output_file, numbers=args.numbers)
+    avg = compute_average(
+        numbers=[json.loads(s)['result'] for s in args.jsons]
+    )
 
-    print(f"Writing output to {output_file}")
-    with open(output_file, 'w') as fout:
+    print(f"Writing output to {args.output_file}")
+    with open(args.output_file, 'w') as fout:
         json.dump(avg, fout)
 
     print("Done")
