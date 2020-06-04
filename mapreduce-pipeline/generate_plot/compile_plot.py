@@ -10,15 +10,9 @@ def parse_args():
         nargs="+",
         help="One or more json experiments",
     )
-    parser.add_argument(
-        "--output_file",
-        type=str,
-        default="out.png",
-        help="Filename to write output number to",
-    )
     return parser.parse_args()
 
-def generate_plot(output_file, experiments):
+def generate_plot(output_file="out.png", experiments):
     """ 
     Plot the experiment results on a the 2 by 2 square
     containing the unit circle. Show how many points fell
@@ -61,15 +55,16 @@ def generate_plot(output_file, experiments):
 
 if __name__ == '__main__':
     args = parse_args()
+    output_file="out.png"
     generate_plot(
-        output_file=args.output_file, 
+        output_file=output_file, 
         experiments=[ json.loads(s) for s in args.json ]
     )
 
     # Kubeflow doesn't render the .png file nicely in the browser
     # So need this to turn it into an ascii html page.
     import base64
-    encoded = base64.b64encode(open(args.output_file, "rb").read()).decode('ascii')
+    encoded = base64.b64encode(open(output_file, "rb").read()).decode('ascii')
     with open("out.html", "w") as f:
         f.write(f'<img src="data:image/png;base64,{encoded}" />')
 
