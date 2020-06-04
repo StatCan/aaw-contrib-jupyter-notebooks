@@ -38,7 +38,7 @@ def generate_plot(output_file, experiments):
     ax.set_xlim((-1, 1))
     ax.set_ylim((-1, 1))
     
-    # plots
+    # plots: inside and outside the circle
     plt.scatter(
         [ e['x'] for e in within ],
         [ e['y'] for e in within ],
@@ -51,7 +51,7 @@ def generate_plot(output_file, experiments):
         c="blue"
     )
 
-    # boundind circle
+    # bounding circle
     c = plt.Circle( (0,0), 1, color='black', fill=False)
     ax.add_artist(c)
     
@@ -65,4 +65,12 @@ if __name__ == '__main__':
         output_file=args.output_file, 
         experiments=[ json.loads(s) for s in args.json ]
     )
+
+    # Kubeflow doesn't render the .png file nicely in the browser
+    # So need this to turn it into an ascii html page.
+    import base64
+    encoded = base64.b64encode(open(args.output_file, "rb").read()).decode('ascii')
+    with open("out.html", "w") as f:
+        f.write(f'<img src="data:image/png;base64,{encoded}" />')
+
     print("Done")
