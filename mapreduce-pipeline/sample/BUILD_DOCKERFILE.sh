@@ -4,7 +4,7 @@ set -e
 
 test -z "$1" && echo Need version number && exit 1
 
-IMAGE="blair-kf-pipeline-pi-sample:$1"
+IMAGE="kfp-components/map-reduce/sample:$1"
 
 docker build . -t  $IMAGE
 
