@@ -12,7 +12,7 @@ def parse_args():
     )
     return parser.parse_args()
 
-def generate_plot(output_file="out.png", experiments):
+def generate_plot(output_file, experiments):
     """ 
     Plot the experiment results on a the 2 by 2 square
     containing the unit circle. Show how many points fell
