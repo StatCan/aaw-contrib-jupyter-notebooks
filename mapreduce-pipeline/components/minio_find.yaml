@@ -1,0 +1,26 @@
+name: mc_find
+inputs:
+- {name: Minio URL, type: URL, description: 'Minio instance URL, starting with http://'}
+- {name: Minio access key, type: String}
+- {name: Minio secret key, type: String}
+- {name: Base Path, description: 'Path in minio to start search from'}
+- {name: Pattern, type: String, description: 'Regex pattern to search with'}
+outputs: 
+- {name: Files, type: String}
+implementation:
+  container:
+    image: minio/mc
+    command:
+    - sh
+    - -ex
+    - -c
+    - |
+        mkdir -p "$(dirname "$5")"
+        mc config host add my_minio $0 $1 $2
+        mc find my_minio/$3 --regex $4 > $5
+    - {inputValue: Minio URL}
+    - {inputValue: Minio access key}
+    - {inputValue: Minio secret key}
+    - {inputValue: Base Path}
+    - {inputValue: Pattern}
+    - {outputPath: Files}
