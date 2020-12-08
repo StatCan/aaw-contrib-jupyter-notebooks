@@ -14,9 +14,8 @@
 ###      API     ###
 ####################
 ###
-###  s3 = get_minimal_client()     # return a boto3 object 
-###  s3 = get_pachyderm_client()   # return a boto3 object  
-###  s3 = get_premium_client()     # return a boto3 object   
+###  s3 = get_standard_client()     # return a boto3 object
+###  s3 = get_premium_client()     # return a boto3 object
 ###
 ###  df    = pandas_from_json(r, *args, **kwargs)  # wrapper for pandas.read_json
 ###  table = arrow_from_json(r, *args, **kwargs)   # wrapper for pyarrow.json.read
@@ -28,7 +27,7 @@
 import subprocess
 import boto3
 from os import remove
-import tempfile    
+import tempfile
 import pandas as pd
 import pyarrow as pa
 from pyarrow import json
@@ -43,14 +42,14 @@ def __get_minio_client__(tenant):
         'MINIO_SECRET_KEY' : None
     }
 
-    if tenant not in ("minimal", "premium", "pachyderm"):
+    if tenant not in ("standard", "premium"):
         print("Not a valid resource! Options are")
-        print("minimal, premium, pachyderm.")
+        print("standard, premium.")
         print("We will try anyway...")
 
-    vault = f"/vault/secrets/minio-{tenant}-tenant1"
+    vault = f"/vault/secrets/minio-{tenant}-tenant-1"
 
-    for var in d: 
+    for var in d:
         CMD = f'echo $(source {vault}; echo ${var})'
         p = subprocess.Popen(CMD, stdout=subprocess.PIPE, shell=True,
                              executable='/bin/bash')
@@ -67,13 +66,9 @@ def __get_minio_client__(tenant):
 
 
 
-def get_minimal_client():
-    """Get a connection to the minimal Minio tenant"""
-    return __get_minio_client__("minimal")
-
-def get_pachyderm_client():    
-    """Get a connection to the pachyderm Minio tenant"""
-    return __get_minio_client__("pachyderm")
+def get_standard_client():
+    """Get a connection to the standard Minio tenant"""
+    return __get_minio_client__("standard")
 
 def get_premium_client():
     """Get a connection to the premium Minio tenant"""
@@ -84,23 +79,23 @@ def get_premium_client():
 
 def __from_s3__(table_type):
     def get_from_s3(r):
-        """ 
-        Read the response block by block as JSON, 
+        """
+        Read the response block by block as JSON,
         write to disk to keep memory from exploding.
         Then return a pandas/arrow dataframe of the object.
         """
-    
+
         temp = tempfile.NamedTemporaryFile(delete=False)
-        for event in r['Payload']:  
+        for event in r['Payload']:
             if 'Records' in event:
                 temp.write(event['Records']['Payload'])
         temp.close()
-    
+
         ### Choose how to interpret the JSON.
         ### With Arrow or Pandas?
         resp = table_type(temp.name)
-        ### 
-        
+        ###
+
         try:
             remove(temp.name)
         except:
@@ -109,7 +104,7 @@ There was an error removing the file:
 {temp.name}
 ... Proceeding anyway.
 """, file=sys.stderr)
-    
+
         return resp
     return get_from_s3
 

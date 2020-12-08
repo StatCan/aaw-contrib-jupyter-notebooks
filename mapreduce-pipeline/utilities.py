@@ -38,14 +38,14 @@ def get_minio_credentials(tenant, strip_http=True, verbose=True):
     Args:
         strip_http (bool): If True, strips http:// from the start of the minio URL
         tenant (str): Minio tenant name, such as "minimal" or "premium"
-        
+
     Returns:
         (dict): Dict with keys:
             url
             access_key
             secret_key
     """
-    vault = f"/vault/secrets/minio-{tenant}-tenant1"
+    vault = f"/vault/secrets/minio-{tenant}-tenant-1"
     if verbose:
         print("Trying to access minio credentials from:")
         print(vault)
@@ -99,7 +99,7 @@ def copy_to_minio(minio_url, bucket, access_key, secret_key, sourcefile,
     # Put file into bucket
     s3.fput_object(bucket, destination, sourcefile)
 
-    
+
 def minio_find_files_matching_pattern(minio_url, bucket, access_key, secret_key,
                                       pattern, prefix='', recursive=True):
     """

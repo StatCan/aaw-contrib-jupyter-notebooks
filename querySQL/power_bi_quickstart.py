@@ -38,27 +38,27 @@
 #
 #            https://statcan.github.io/daaas/en/Storage/#programmatic-access
 #
-#            Then `source /vault/secrets/minio-minimal-tenant1` and run
+#            Then `source /vault/secrets/minio-standard-tenant-1` and run
 #
 #                  $ echo $MINIO_ACCESS_KEY
 #                  $ echo $MINIO_SECRET_KEY
 #
-#  
+#
 #  edited: May 19, 2020
 #
 ###################################
 
 import boto3
 from os import remove
-import tempfile    
+import tempfile
 import pandas as pd
 import sys
 
 #########################
-#        CONFIG         # 
+#        CONFIG         #
 #########################
 
-TENANT = 'minimal' # options: minimal, premium, pachyderm
+TENANT = 'minimal' # options: standard, premium
 
 # mandatory. Must get your credentials from Jupyter.
 ACCESS_KEY = 'XXXXXXXX'
@@ -72,7 +72,7 @@ SECRET_KEY = 'YYYYYYYY'
 def get_minio_client():
     """ create Minio Client. """
     # TODO: Accessing this from within the datacenter would be better.
-    URL = f'https://{TENANT}-tenant1-minio.covid.cloud.statcan.ca'
+    URL = f'https://standard-{TENANT}-tenant-1.covid.cloud.statcan.ca'
     return boto3.client('s3',
                   endpoint_url=URL,
                   aws_access_key_id=ACCESS_KEY,
@@ -82,12 +82,12 @@ def get_minio_client():
 
 def __from_s3__(table_type):
     def get_from_json(r):
-        """ 
-        Read the response block by block as JSON, 
+        """
+        Read the response block by block as JSON,
         write to disk to keep memory from exploding.
-        """    
+        """
         temp = tempfile.NamedTemporaryFile(delete=False)
-        for event in r['Payload']:  
+        for event in r['Payload']:
             if 'Records' in event:
                 temp.write(event['Records']['Payload'])
         temp.close()
@@ -96,7 +96,7 @@ def __from_s3__(table_type):
             remove(temp.name)
         except:
             print(f"""There was an error removing the file:\n{temp.name}\n... Proceeding anyway.""", file=sys.stderr)
-    
+
         return resp
     return get_from_json
 
@@ -127,7 +127,7 @@ r = s3.select_object_content(
     ExpressionType='SQL',
     # Note, there's no ';' at the end.
     Expression="""
-    SELECT PopTotal,PopDensity FROM s3object s 
+    SELECT PopTotal,PopDensity FROM s3object s
     WHERE s.Location like '%Canada%'
     """,
     InputSerialization={
@@ -148,7 +148,7 @@ r = s3.select_object_content(
 
 )
 
-# Using the CSV format is WAY faster, but you lose the column names! 
+# Using the CSV format is WAY faster, but you lose the column names!
 # You can edit this.
 
 df = pandas_from_json(r)

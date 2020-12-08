@@ -14,9 +14,8 @@
 ###      API     ###
 ####################
 ###
-###  minio_client =  get_minimal_client()      # return a Minio object 
-###  minio_client =  get_pachyderm_client()    # return a Minio object  
-###  minio_client =  get_premium_client()      # return a Minio object   
+###  minio_client =  get_standard_client()      # return a Minio object
+###  minio_client =  get_premium_client()      # return a Minio object
 ###
 ###  See: https://github.com/minio/minio-py
 
@@ -27,8 +26,7 @@
 ###    import daaas_storage.py
 ###
 ###    # Choose from
-###    minio_client = get_minimal_client():
-###    # minio_client = get_pachyderm_client():    
+###    minio_client = get_standard_client():
 ###    # minio_client = get_premium_client():
 ###
 ###
@@ -39,11 +37,11 @@
 ###
 ###    # Example:
 ###    objects = minio_client.list_objects(
-###        "shared", 
+###        "shared",
 ###        prefix='blair-drummond/',
 ###        recursive=True
 ###          )
-###    
+###
 ###    for obj in objects:
 ###        print(obj.bucket_name, obj.object_name.encode('utf-8'), obj.last_modified,
 ###              obj.etag, obj.size, obj.content_type)
@@ -63,14 +61,14 @@ def __get_minio_client__(tenant):
         'MINIO_SECRET_KEY' : None
     }
 
-    if tenant not in ("minimal", "premium", "pachyderm"):
+    if tenant not in ("standard", "premium"):
         print("Not a valid resource! Options are")
-        print("minimal, premium, pachyderm.")
+        print("standard, premium")
         print("We will try anyway...")
 
-    vault = f"/vault/secrets/minio-{tenant}-tenant1"
+    vault = f"/vault/secrets/minio-{tenant}-tenant-1"
 
-    for var in d: 
+    for var in d:
         CMD = f'echo $(source {vault}; echo ${var})'
         p = subprocess.Popen(CMD, stdout=subprocess.PIPE, shell=True,
                              executable='/bin/bash')
@@ -79,7 +77,7 @@ def __get_minio_client__(tenant):
     import re
     # Get rid of http:// in minio URL
     http = re.compile('^https?://')
-        
+
     # Create the minio client.
     s3Client = Minio(
         http.sub("", d['MINIO_URL']),
@@ -93,13 +91,9 @@ def __get_minio_client__(tenant):
 
 
 
-def get_minimal_client():
+def get_standard_client():
     """Get a connection to the minimal Minio tenant"""
     return __get_minio_client__("minimal")
-
-def get_pachyderm_client():    
-    """Get a connection to the pachyderm Minio tenant"""
-    return __get_minio_client__("pachyderm")
 
 def get_premium_client():
     """Get a connection to the premium Minio tenant"""
