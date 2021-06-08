@@ -1,5 +1,5 @@
 import re
-
+import json
 
 def parse_env_var_def(s):
     """
@@ -45,24 +45,20 @@ def get_minio_credentials(tenant, strip_http=True, verbose=True):
             access_key
             secret_key
     """
-    vault = f"/vault/secrets/minio-{tenant}-tenant-1"
+    vault = f"/vault/secrets/minio-{tenant}-tenant-1.json"
     if verbose:
         print("Trying to access minio credentials from:")
         print(vault)
-    d = get_env_variables_from_file(vault)
-
-    # Select only the keys that we want, also checking that they exist at all
-    key_map = {
-        "MINIO_URL": "url",
-        "MINIO_ACCESS_KEY": "access_key",
-        "MINIO_SECRET_KEY": "secret_key",
-    }
-    minio_credentials = {}
-    for k in key_map:
-        try:
-            minio_credentials[key_map[k]] = d[k]
-        except KeyError:
-            raise KeyError(f"Cannot find minio credential {k} in vault file")
+    with open(f"/vault/secrets/minio-{tenant}-tenant-1.json") as f:
+        if verbose:
+            print("Trying to access minio credentials from:")
+            print(vault)
+        creds = json.load(f)
+        minio_credentials ={
+                "url":  creds['MINIO_URL'],
+                "access_key": creds['MINIO_ACCESS_KEY'],
+                "secret_key": creds['MINIO_SECRET_KEY']
+        }
 
     if strip_http:
         # Get rid of http:// in minio URL

@@ -22,16 +22,16 @@ def generate_plot(output_file, experiments):
     # Split the results into inside v.s. outside
     within  = [ e for e in experiments if e['x']**2 + e['y']**2 <= 1  ]
     outside = [ e for e in experiments if e['x']**2 + e['y']**2  > 1  ]
-    
+
 
     # clear things for fresh plot
     ax = plt.gca()
     ax.cla() 
-    
+
     # Set plot bounds
     ax.set_xlim((-1, 1))
     ax.set_ylim((-1, 1))
-    
+
     # plots: inside and outside the circle
     plt.scatter(
         [ e['x'] for e in within ],
@@ -48,7 +48,7 @@ def generate_plot(output_file, experiments):
     # bounding circle
     c = plt.Circle( (0,0), 1, color='black', fill=False)
     ax.add_artist(c)
-    
+
     # write to disk
     plt.savefig(output_file)
 
@@ -60,12 +60,4 @@ if __name__ == '__main__':
         output_file=output_file, 
         experiments=[ json.loads(s) for s in args.json ]
     )
-
-    # Kubeflow doesn't render the .png file nicely in the browser
-    # So need this to turn it into an ascii html page.
-    import base64
-    encoded = base64.b64encode(open(output_file, "rb").read()).decode('ascii')
-    with open("out.html", "w") as f:
-        f.write(f'<img src="data:image/png;base64,{encoded}" />')
-
     print("Done")
