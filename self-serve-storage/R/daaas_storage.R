@@ -50,12 +50,14 @@ get_bash_variable <- function (location, var) {
 
 ### Just sets the environment variables.
 daaas_storage.__getClient__ <- function (storage_type) {
-
-    location = sprintf("/vault/secrets/minio-%s-tenant-1", storage_type)
-
-    MINIO_URL        = get_bash_variable(location, "MINIO_URL")
-    MINIO_ACCESS_KEY = get_bash_variable(location, "MINIO_ACCESS_KEY")
-    MINIO_SECRET_KEY = get_bash_variable(location, "MINIO_SECRET_KEY")
+    library(RJSONIO)
+    
+    location = sprintf("/vault/secrets/minio-%s-tenant-1.json", storage_type)
+    j <- fromJSON(location)
+    url <-j[['MINIO_URL']]
+    MINIO_URL <- j[['MINIO_URL']]
+    MINIO_ACCESS_KEY <- j[['MINIO_ACCESS_KEY']]
+    MINIO_SECRET_KEY <- j[['MINIO_SECRET_KEY']]
 
     ENDPOINT = gsub("https?://", "", MINIO_URL)
 

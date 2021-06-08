@@ -51,28 +51,20 @@
 import subprocess
 from minio import Minio
 import os
+import json
 
 def __get_minio_client__(tenant):
     """ Get the variables out of vault to create Minio Client. """
-
-    d = {
-        'MINIO_URL'        : None,
-        'MINIO_ACCESS_KEY' : None,
-        'MINIO_SECRET_KEY' : None
-    }
 
     if tenant not in ("standard", "premium"):
         print("Not a valid resource! Options are")
         print("standard, premium")
         print("We will try anyway...")
 
-    vault = f"/vault/secrets/minio-{tenant}-tenant-1"
+    #vault = f"/vault/secrets/minio-{tenant}-tenant-1"
 
-    for var in d:
-        CMD = f'echo $(source {vault}; echo ${var})'
-        p = subprocess.Popen(CMD, stdout=subprocess.PIPE, shell=True,
-                             executable='/bin/bash')
-        d[var] = p.stdout.readlines()[0].strip().decode("utf-8")
+    with open(f'/vault/secrets/minio-{tenant}-tenant-1.json') as f:
+        creds = json.load(f)
 
     import re
     # Get rid of http:// in minio URL
@@ -80,9 +72,9 @@ def __get_minio_client__(tenant):
 
     # Create the minio client.
     s3Client = Minio(
-        http.sub("", d['MINIO_URL']),
-        access_key=d['MINIO_ACCESS_KEY'],
-        secret_key=d['MINIO_SECRET_KEY'],
+        http.sub("", creds['MINIO_URL']),
+        access_key=creds['MINIO_ACCESS_KEY'],
+        secret_key=creds['MINIO_SECRET_KEY'],
         secure=False,
         region="us-west-1"
     )
@@ -90,10 +82,9 @@ def __get_minio_client__(tenant):
     return s3Client
 
 
-
 def get_standard_client():
     """Get a connection to the minimal Minio tenant"""
-    return __get_minio_client__("minimal")
+    return __get_minio_client__("standard")
 
 def get_premium_client():
     """Get a connection to the premium Minio tenant"""
