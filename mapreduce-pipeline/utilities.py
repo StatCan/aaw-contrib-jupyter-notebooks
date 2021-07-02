@@ -85,7 +85,7 @@ def copy_to_minio(minio_url, bucket, access_key, secret_key, sourcefile,
         minio_url,
         access_key=access_key,
         secret_key=secret_key,
-        secure=minio_url.startswith('https'),
+        secure=False,
         region="us-west-1",
     )
 
