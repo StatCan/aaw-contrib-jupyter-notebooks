@@ -85,7 +85,7 @@ def copy_to_minio(minio_url, bucket, access_key, secret_key, sourcefile,
         minio_url,
         access_key=access_key,
         secret_key=secret_key,
-        secure=False,
+        secure=minio_url.startswith('https'),
         region="us-west-1",
     )
 
@@ -112,7 +112,7 @@ def minio_find_files_matching_pattern(minio_url, bucket, access_key, secret_key,
         minio_url,
         access_key=access_key,
         secret_key=secret_key,
-        secure=False,
+        secure=minio_url.startswith('https'),
         region="us-west-1",
     )
 
