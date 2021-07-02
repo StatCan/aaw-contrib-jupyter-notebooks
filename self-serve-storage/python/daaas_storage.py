@@ -75,7 +75,7 @@ def __get_minio_client__(tenant):
         http.sub("", creds['MINIO_URL']),
         access_key=creds['MINIO_ACCESS_KEY'],
         secret_key=creds['MINIO_SECRET_KEY'],
-        secure=creds['MINIO_URL'].startswith('https'),
+        secure=False,
         region="us-west-1"
     )
 
