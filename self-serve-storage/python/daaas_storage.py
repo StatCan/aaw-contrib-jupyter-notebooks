@@ -65,6 +65,7 @@ def __get_minio_client__(tenant):
 
     with open(f'/vault/secrets/minio-{tenant}-tenant-1.json') as f:
         creds = json.load(f)
+        minio_url = creds['MINIO_URL']
 
     import re
     # Get rid of http:// in minio URL
@@ -75,7 +76,7 @@ def __get_minio_client__(tenant):
         http.sub("", creds['MINIO_URL']),
         access_key=creds['MINIO_ACCESS_KEY'],
         secret_key=creds['MINIO_SECRET_KEY'],
-        secure=False,
+        secure=minio_url.startswith('https'),
         region="us-west-1"
     )
 

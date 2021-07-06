@@ -51,7 +51,7 @@ get_bash_variable <- function (location, var) {
 ### Just sets the environment variables.
 daaas_storage.__getClient__ <- function (storage_type) {
     library(RJSONIO)
-    
+
     location = sprintf("/vault/secrets/minio-%s-tenant-1.json", storage_type)
     j <- fromJSON(location)
     url <-j[['MINIO_URL']]
@@ -65,7 +65,8 @@ daaas_storage.__getClient__ <- function (storage_type) {
         "AWS_S3_ENDPOINT" =  ENDPOINT,
         "AWS_ACCESS_KEY_ID" = MINIO_ACCESS_KEY,
         "AWS_SECRET_ACCESS_KEY" = MINIO_SECRET_KEY,
-        "AWS_DEFAULT_REGION" = ""
+        "AWS_DEFAULT_REGION" = "",
+        "SECURE" = startsWith(j[['MINIO_URL']], "https")
     )
 }
 
