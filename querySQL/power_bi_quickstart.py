@@ -73,11 +73,12 @@ def get_minio_client():
     """ create Minio Client. """
     # TODO: Accessing this from within the datacenter would be better.
     URL = f'https://standard-{TENANT}-tenant-1.covid.cloud.statcan.ca'
+    SECURE = URL.startswith('https')
     return boto3.client('s3',
                   endpoint_url=URL,
                   aws_access_key_id=ACCESS_KEY,
                   aws_secret_access_key=SECRET_KEY,
-                  use_ssl=True,
+                  use_ssl=SECURE,
                   region_name="us-west-1")
 
 def __from_s3__(table_type):

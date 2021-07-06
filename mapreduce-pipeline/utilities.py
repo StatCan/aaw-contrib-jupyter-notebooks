@@ -57,7 +57,8 @@ def get_minio_credentials(tenant, strip_http=True, verbose=True):
         minio_credentials ={
                 "url":  creds['MINIO_URL'],
                 "access_key": creds['MINIO_ACCESS_KEY'],
-                "secret_key": creds['MINIO_SECRET_KEY']
+                "secret_key": creds['MINIO_SECRET_KEY'],
+                "secure": creds['MINIO_URL'].startswith('https')
         }
 
     if strip_http:
@@ -79,13 +80,12 @@ def create_bucket_if_missing(minio_obj, bucket):
 def copy_to_minio(minio_url, bucket, access_key, secret_key, sourcefile,
                   destination):
     from minio import Minio
-
     # Store results to minio
     s3 = Minio(
         minio_url,
         access_key=access_key,
         secret_key=secret_key,
-        secure=False,
+        secure=minio_url.startswith('https'),
         region="us-west-1",
     )
 
