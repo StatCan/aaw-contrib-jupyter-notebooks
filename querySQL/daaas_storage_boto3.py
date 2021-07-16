@@ -54,8 +54,7 @@ def __get_minio_client__(tenant):
         p = subprocess.Popen(CMD, stdout=subprocess.PIPE, shell=True,
                              executable='/bin/bash')
         d[var] = p.stdout.readlines()[0].strip().decode("utf-8")
-    HOST = d['MINIO_URL']
-    SECURE = HOST.startswith('https')
+    SECURE = d['MINIO_URL'].startswith('https')
     s3Client = boto3.client('s3',
                   endpoint_url=d['MINIO_URL'],
                   aws_access_key_id=d['MINIO_ACCESS_KEY'],
