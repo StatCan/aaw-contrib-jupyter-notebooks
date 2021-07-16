@@ -47,28 +47,29 @@ get_bash_variable <- function (location, var) {
         intern = TRUE
     )
 }
-
-### Just sets the environment variables.
-daaas_storage.__getClient__ <- function (storage_type) {
-    library(RJSONIO)
-
-    location = sprintf("/vault/secrets/minio-%s-tenant-1.json", storage_type)
-    j <- fromJSON(location)
-    url <-j[['MINIO_URL']]
-    MINIO_URL <- j[['MINIO_URL']]
-    MINIO_ACCESS_KEY <- j[['MINIO_ACCESS_KEY']]
-    MINIO_SECRET_KEY <- j[['MINIO_SECRET_KEY']]
-
-    ENDPOINT = gsub("https?://", "", MINIO_URL)
-
+# Just sets the environment variables.
+daaas_storage.__getClient__<- function(storage_type = c("standard", "premium")) {
+    type <- match.arg(storage_type)
+    env_vars <- c("MINIO_URL", "MINIO_ACCESS_KEY", "MINIO_SECRET_KEY")
+    location <- sprintf("/vault/secrets/minio-%s-tenant-1", type)
+    minio <- if (requireNamespace("jsonlite", quietly = TRUE)) {
+        # jsonlite is installed on the AAW's R image
+        # works just as well with RJSONIO::fromJSON or rjson::fromJSON
+        jsonlite::fromJSON(paste0(location, ".json"))
+    } else {
+        lapply(setNames(nm = env_vars), function(x) {
+            system(sprintf("bash -c 'source %s; echo $%s'", location, x), intern = TRUE)
+        })
+    }
     Sys.setenv(
-        "AWS_S3_ENDPOINT" =  ENDPOINT,
-        "AWS_ACCESS_KEY_ID" = MINIO_ACCESS_KEY,
-        "AWS_SECRET_ACCESS_KEY" = MINIO_SECRET_KEY,
+        "AWS_S3_ENDPOINT" = gsub("https?://", "", minio$MINIO_URL),
+        "AWS_ACCESS_KEY_ID" = minio$MINIO_ACCESS_KEY,
+        "AWS_SECRET_ACCESS_KEY" = minio$MINIO_SECRET_KEY,
         "AWS_DEFAULT_REGION" = "",
-        "SECURE" = startsWith(j[['MINIO_URL']], "https")
+        "SECURE" = startsWith(minio$MINIO_URL, "https")
     )
 }
+
 
 
 daaas_storage.standard <- function () {
