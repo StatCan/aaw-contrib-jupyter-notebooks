@@ -1,0 +1,354 @@
+---
+title: "Cansim Api"
+output:
+  html_document:
+    df_print: paged
+---
+
+# CANSIM API - Get MetaData and Download CANSIM Tables
+An RMarkdown Notebook that explores some functions, namely getAllCubeList, getCodeSets, and getCubeMetaData, from Statistics Canada's Web Data Service (WDS) and demonstrates how to download full CSV data files. For more information about the WDS, visit: [https://www.statcan.gc.ca/eng/developers/wds/user-guide](https://www.statcan.gc.ca/eng/developers/wds/user-guide)
+
+```{r, message=FALSE}
+# Import packages
+library(tidyverse)
+library(data.table)
+library(httr)
+library(jsonlite)
+library(curl) # Note: I had to conda install curl because there was an error with curl to fetch the url
+```
+
+#  WDS - getAllCubeList
+This function returns a list of jsons, 1 per metadata table. Notice that subjectCode and surveyCode are columns with lists, and corrections and dimensions are columns of data frames. In R, the json file can directly be flattened and loaded into one data frame.
+
+```{r}
+# Url for code sets
+url <- GET("https://www150.statcan.gc.ca/t1/wds/rest/getAllCubesList")
+
+# Retrieves the contents of url as JSON.
+md <- jsonlite::fromJSON(content(url, as = "text", encoding = "UTF-8"), flatten = TRUE)
+
+head(md)
+```
+
+In R, it is easy to extract a column of data frames or a column of lists — use `tidyr::unnest()`. By default, unnest will drop the column and row if it is empty, to keep these rows, use `keep_empty = TRUE`.
+
+```{r}
+# Unnest corrections and dimensions
+md <- unnest(md, corrections, keep_empty = TRUE)
+md <- unnest(md, dimensions, keep_empty = TRUE)
+
+# Unlist subjectCode and surveyCode
+md <- unnest(md, subjectCode, keep_empty = TRUE)
+md <- unnest(md, surveyCode, keep_empty = TRUE)
+
+head(md)
+```
+
+Then, I convert columns to their proper types (i.e. date columns are dates).
+
+```{r}
+# Extract just the dates from releaseTime and correctionDate
+md$releaseTime <- str_sub(md$releaseTime, 1, 10)
+md$correctionDate <- str_sub(md$correctionDate, 1, 10)
+
+# Convert date columns from chr to date
+md$cubeStartDate <- as.Date(md$cubeStartDate)
+md$cubeEndDate <- as.Date(md$cubeEndDate)
+md$releaseTime <- as.Date(md$releaseTime)
+md$correctionDate <- as.Date(md$correctionDate)
+
+head(md)
+```
+
+Once the column types are converted, drop duplicate rows. The output is a clean, and easy-to-read data frame. Much better than the json format.
+
+```{r}
+# Drop duplicates
+md <- distinct(md)
+
+md
+```
+
+I then check how many NAs are in each column to see if there are any columns that can be removed. My condition for removing columns is when the entire column is NAs.
+
+In this case, there are no columns that are entirely NAs.
+
+```{r, results='asis'}
+# Check number of NaNs in each column
+print(as.data.frame(colSums(is.na(md))))
+
+# Print length of md to compare how many rows are empty
+print(nrow(md))
+```
+
+The following code can remove any columns that are entirely NAs.
+
+```{r}
+# Use an anonymous function to select all columns with at least one non-NA row 
+md <- select(md, where(function(x) any(!is.na(x))))
+
+names(md)
+```
+# Collect Code Sets
+The current dataframe has subject, survey, and frequency as codes. This doesn't tell the user much without a legend, and with so many codes, the user would have to spend a lot of time looking up codes. Thus, let's collect the code sets and merge them with the data frame.
+
+As before, let's retrieve the code sets and load it into a data frame. Notice that it returns a list of 2 objects, with all the data frames for each code set in the second element: `object`.
+```{r}
+# Get code sets
+# Url for code sets
+url <- GET("https://www150.statcan.gc.ca/t1/wds/rest/getCodeSets")
+
+# Retrieves the contents of url as JSON
+codes <- jsonlite::fromJSON(content(url, as = "text", encoding = "UTF-8"), flatten = TRUE)
+
+# Inspect one of the code sets
+codes$object$frequency
+```
+
+Let's extract the code sets and display the ones of interest
+```{r}
+# Extract code sets
+codes <- codes$object
+
+# Check a code set
+codes$frequency
+```
+
+Then, I merge these extracted code sets with the metadata, and select and reorder the columns such that codes are adjacent to their definitions. Note, for the archived code, I manually searched a productId with 1 and 2 on the website and checked if there was an archived tag or not.
+
+```{r}
+# Merge code sets with metadata
+md <- left_join(md, codes$subject, by = "subjectCode")
+md <- left_join(md, codes$survey, by = "surveyCode")
+md <- left_join(md, codes$frequency, by = "frequencyCode")
+
+# Drop some the columns
+md <- select(md, -archived, -dimensionPositionId, -hasUOM, -correctionDate,
+             -correctionNoteEn, -correctionNoteFr)
+
+# Sort column names to keep related columns together
+md <- select(md, sort(names(md)))
+
+# Move productId and cansimId to the front
+md <- select(md, productId, cansimId, everything())
+
+# Check
+head(md)
+```
+
+Finally, the user then has the option to filter the data frame and save it.
+
+```{r}
+# Optional: Filter dataframe
+
+# Print length of unique productIds to ensure all of them are in the final data frame
+print(length(unique(md$productId)))
+
+# Save this file
+fwrite(md, "all_metadata_r.csv")
+```
+
+# Download Complete CANSIM Tables
+To download complete CANSIM Tables, the user requires a list of productIds. In this example, I use the productId column from the compiled metadata data frame I saved from the previous section. I use the `unique()` function to remove any duplicates, which returns a list of unique productIds, and then just use the first 5.
+
+```{r}
+# From the API, notice that the url to download csv files is static
+# with only the product name that changes
+
+# Load productIds from the previous section
+md <- fread("all_metadata_r.csv", select=c('productId'))
+
+# List of unique pids (Take first 5)
+pids = unique(md$productId)[1:5]
+
+print(pids)
+```
+
+It would be inefficient to download tables we already have, so let's add a check to only download tables that do not exist in a specified file path. Tables are downloaded as zip files and then unzipped, so we need to detect folders.
+
+First, scan for all directories (a.k.a folders) in the specified file path, and ensure to remove hidden directories (RStudio does not show hidden directories); the output is a list of directories where the directory names are string type. The productIds are integers though, so to ensure the common elements between the two lists, one of the list's types will need to be converted. In this case, I convert the list of directory names from string to integer if the list is non-empty. To remove the common elements, we can use the `which` function to find all productIds that are not in the directories list.
+
+```{r}
+# Check which tables have already been downloaded
+# List of downloaded cansim tables
+dled_pids <- list.dirs(path = "./CANSIM/cansim_tables", full.names = FALSE, recursive = FALSE)
+
+# Convert to integers if list is not empty
+if (length(dled_pids) > 0){
+  
+  # Convert folder name to integer
+  dled_pids = as.integer(dled_pids)
+
+  print(dled_pids)
+  
+  # Get pids that haven't been downloaded as a vector
+  new_pids <- pids[which(!(pids %in% dled_pids))]
+} else {
+  
+  # pids are all new
+  new_pids <- pids
+}
+
+print(new_pids)
+```
+
+Finally, for each new CANSIM table, download them. Referring to the getFullTableDownloadCSV function from the WDS, notice that the object in the returned json is a static link where only the productId would change (i.e. "https://www150.statcan.gc.ca/n1/tbl/csv/14100287-eng.zip"), so instead of using the WDS, let's directly modify this link per new CANSIM table. By using `urllib.request.urlretrieve(url)` and specifying the file path as the second parameter, the complete CANSIM table can be installed as a zip folder. However, if I want to read data quickly, it is easier to do so when the zip file is extracted, so I do unzip the download and save that instead of a zip.
+
+```{r}
+# Change the timeout settings. Originally only 1 minute before timeout/
+getOption("timeout")
+
+# Don't timeout. Allow download to take as long as it needs.
+options(timeout=NULL)
+
+# Check if there are new tables to be downloaded
+if (length(new_pids) > 0){
+
+  # Download a small subset of zip files and unzip them
+  for (i in 1:length(new_pids)){
+
+    # Create temp file
+    temp <- tempfile()
+    
+    # Download all the files into cansim_tables folder
+    download.file(str_glue("https://www150.statcan.gc.ca/n1/tbl/csv/{new_pids[[i]]}-eng.zip"), temp)
+    
+    # Extract files and save them to their own folder
+    unzip(temp, exdir = str_glue("./CANSIM/cansim_tables/{new_pids[[i]]}"))
+    
+    # Remove temp file
+    unlink(temp)
+  }
+}
+```
+
+# Get More Detailed MetaData
+
+Previously, we used `getAllCubesList` to construct the metadata, but it's missing information on dimensions, members, and footnotes. However, there's a function that retrieves individual productId's metadata which has these attributes: `getCubeMetadata`. The caveat is that you must have a list of productIds, but this can be retrieved using `getAllCubesList` or `getAllCubesListLite` (which gets even less attributes).
+
+In this example, I use the productId column from the compiled metadata data frame I saved from the first section. I use the unique() function to remove any duplicates, which returns a list of unique productIds, and then just use the first 3.
+
+```{r}
+# Load all_metadata.csv for its productId column
+md <- fread("all_metadata_r.csv", select=c("productId"))
+
+# List of pids
+pids <- unique(md$productId)
+
+# Change the size of the list to test
+pids <- pids[1:3]
+```
+
+For each productId, retrieve and load the metadata into a data frame as seen in the first section. Notice that dimensions, members and footnotes are columns of data frames, so extract them with `unnest()`. We can `unnest` columns of list type as well for subjectCode and surveyCode. Note that, when unnesting, columns such as correctionFootnote and correction are dropped if they only contain NAs.
+
+```{r}
+# Empty list to store each dataframe
+mds = list()
+
+# For each productId
+for (i in 1:length(pids)){
+  
+  # Url for post
+  url <- "https://www150.statcan.gc.ca/t1/wds/rest/getCubeMetadata"
+  
+  # Post for productId
+  body <- list(list("productId" = pids[i]))
+
+  # Get the metadata
+  metaData <- POST(url, body = body, encode = "json")
+  
+  # Retrieves the contents of metaData as JSON
+  md <- jsonlite::fromJSON(content(metaData, as = "text", encoding = "UTF-8"), flatten = TRUE)
+  
+  # Drop some columns
+  md <- select(md, -status, -object.responseStatusCode, -object.archiveStatusCode,
+               -object.correctionFootnote, -object.geoAttribute, -object.correction)
+
+  # Remove object. in the column names
+  names(md) <- gsub("object.", "", names(md))
+
+  # Unnest the columns with dataframes
+  md <- unnest(md, dimension, keep_empty = TRUE)
+  md <- unnest(md, member, keep_empty = TRUE)
+  md <- unnest(md, footnote, keep_empty = TRUE)
+  
+  # Unnest columns with lists
+  md <- unnest(md, subjectCode, keep_empty = TRUE)
+  md <- unnest(md, surveyCode, keep_empty = TRUE)
+  
+  mds[[i]] <- md
+}
+```
+
+The list of metadata data frames is concatenated to construct a single data frame. Then, I merge the code sets with the data frame, drop duplicate rows just in case there is overlap between CANSIM tables' metadata, and check for the number of missing values (NAs) in each column. Only remove the columns if it consists of entirely NAs.
+
+```{r}
+# Bind the data frames into a single data frame
+md <- rbindlist(mds, use.names = TRUE, fill = TRUE)
+
+# Convert classificationTypeCode to integer
+md$classificationTypeCode <- as.integer(md$classificationTypeCode)
+
+# Merge code sets from before with metadata (uncomment if you need them again)
+# codes <- jsonlite::fromJSON(content(GET("https://www150.statcan.gc.ca/t1/wds/rest/getCodeSets"),
+#                                     as = "text", encoding = "UTF-8"), flatten = TRUE)$object
+
+md <- left_join(md, codes$subject, by = "subjectCode")
+md <- left_join(md, codes$survey, by = "surveyCode")
+md <- left_join(md, codes$frequency, by = "frequencyCode")
+md <- left_join(md, codes$uom, by = "memberUomCode")
+md <- left_join(md, codes$classificationType, by = "classificationTypeCode")
+
+# Drop duplicates
+md <- distinct(md)
+
+# Print
+print(md)
+
+# Check number of NAs in each column
+print(as.data.frame(colSums(is.na(md))))
+
+# Print length of md to compare how many rows are empty
+print(nrow(md))
+```
+
+Then, I select which columns to keep (removing some unnecessary columns like link.footnoteId, terminated, etc.). I also convert columns columns that should be date types to dates. The output is a clean data frame for the productId which is then stored in a list.
+
+```{r}
+# Drop some columns
+md <- select(md, -nbSeriesCube, -nbDatapointsCube, -terminated, -link.footnoteId,
+             -memberUomFr)
+
+# Sort column names to keep related columns together
+md <- select(md, sort(names(md)))
+
+# Move productId and cansimId to the front
+md <- select(md, productId, cansimId, everything())
+
+# Extract just the dates from releaseTime
+md$releaseTime <- str_sub(md$releaseTime, 1, 10)
+
+# Convert date columns from chr to date
+md$cubeStartDate <- as.Date(md$cubeStartDate)
+md$cubeEndDate <- as.Date(md$cubeEndDate)
+md$releaseTime <- as.Date(md$releaseTime)
+```
+
+Finally, the user can filter the clean and complete metadata data frame and save it.
+
+```{r}
+# Optional: Filter data frame
+
+# Save to csv
+fwrite(md, "all_detailed_metadata_r.csv")
+```
+
+# Yet Another Way to Concatenate All Metadata
+
+Note: Requires user to have a list of productIds (pid_list)
+
+1. Download the full data csv files
+2. Read and load all their metadata files as dataframes into a list  
+  for i in pid_list: pd.read_csv("path/to/cansim_tables/{}/{}_MetaData.csv".format(i))
+3. Clean the metadata data frame
+4. Concatenate all the dataframes into one with rbindlist(mds)
