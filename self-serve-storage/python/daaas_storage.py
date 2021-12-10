@@ -14,8 +14,8 @@
 ###      API     ###
 ####################
 ###
-###  minio_client =  get_standard_client()      # return a Minio object
-###  minio_client =  get_premium_client()      # return a Minio object
+###  list =  get_instances()      # return all available MinIO instances
+###  instances =  Instances()      # return an object which has all the MinIO Clients as attributes
 ###
 ###  See: https://github.com/minio/minio-py
 
@@ -25,10 +25,9 @@
 ###
 ###    import daaas_storage.py
 ###
-###    # Choose from
-###    minio_client = get_standard_client():
-###    # minio_client = get_premium_client():
-###
+###    print(get_instances())   # to see what instances are available
+###    instances = daaas_storage.Instances() 
+###    storage = instances.minio_standard    # choose one of the instances that was printed
 ###
 ###    # This minio client is from minio-py, and you can use it
 ###    # for and s3 purpose
@@ -53,17 +52,10 @@ from minio import Minio
 import os
 import json
 
-def __get_minio_client__(tenant):
+def get_client(instance):
     """ Get the variables out of vault to create Minio Client. """
 
-    if tenant not in ("standard", "premium"):
-        print("Not a valid resource! Options are")
-        print("standard, premium")
-        print("We will try anyway...")
-
-    #vault = f"/vault/secrets/minio-{tenant}-tenant-1"
-
-    with open(f'/vault/secrets/minio-{tenant}-tenant-1.json') as f:
+    with open(f'/vault/secrets/{instance}.json') as f:
         creds = json.load(f)
         minio_url = creds['MINIO_URL']
 
@@ -82,11 +74,19 @@ def __get_minio_client__(tenant):
 
     return s3Client
 
-
-def get_standard_client():
-    """Get a connection to the minimal Minio tenant"""
-    return __get_minio_client__("standard")
-
-def get_premium_client():
-    """Get a connection to the premium Minio tenant"""
-    return __get_minio_client__("premium")
+class Instances:
+    clients = []
+    def add_instance(self, instance):
+        self.clients.append(instance)
+        # changes '-' to '_' in attribute name to create valid name
+        setattr(self, instance.replace("-", "_"), get_client(instance)) 
+    
+    def __init__(self):
+        instance_list = get_instances()
+        for i in instance_list:
+            self.add_instance(i)           
+            
+def get_instances():
+    files = os.listdir('/vault/secrets')
+    instances = [file for file in files if not file.endswith('.json')]
+    return instances

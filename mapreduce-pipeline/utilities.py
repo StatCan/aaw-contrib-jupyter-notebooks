@@ -31,13 +31,13 @@ def get_env_variables_from_file(filepath):
     return {line[0]: line[1] for line in lines if line}
 
 
-def get_minio_credentials(tenant, strip_http=True, verbose=True):
+def get_minio_credentials(instance, strip_http=True, verbose=True):
     """
     Retrieve minio credentials from the vault (available from notebook server)
 
     Args:
         strip_http (bool): If True, strips http:// from the start of the minio URL
-        tenant (str): Minio tenant name, such as "minimal" or "premium"
+        instance (str): Minio instance name, such as "minio-standard-gateway" or "minio-standard"
 
     Returns:
         (dict): Dict with keys:
@@ -45,11 +45,11 @@ def get_minio_credentials(tenant, strip_http=True, verbose=True):
             access_key
             secret_key
     """
-    vault = f"/vault/secrets/minio-{tenant}-tenant-1.json"
+    vault = f"/vault/secrets/{instance}.json"
     if verbose:
         print("Trying to access minio credentials from:")
         print(vault)
-    with open(f"/vault/secrets/minio-{tenant}-tenant-1.json") as f:
+    with open(f"/vault/secrets/{instance}.json") as f:
         if verbose:
             print("Trying to access minio credentials from:")
             print(vault)
