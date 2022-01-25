@@ -14,8 +14,8 @@
 ###      API     ###
 ####################
 ###
-###  s3 = get_standard_client()     # return a boto3 object
-###  s3 = get_premium_client()     # return a boto3 object
+###  instances = get_instances()     # return available MinIO instances
+###  s3 = Instances()                # return an object which has all the MinIO Clients as attributes
 ###
 ###  df    = pandas_from_json(r, *args, **kwargs)  # wrapper for pandas.read_json
 ###  table = arrow_from_json(r, *args, **kwargs)   # wrapper for pyarrow.json.read
@@ -27,13 +27,14 @@
 import subprocess
 import boto3
 from os import remove
+import os
 import tempfile
 import pandas as pd
 import pyarrow as pa
 from pyarrow import json
 import sys
 
-def __get_minio_client__(tenant):
+def get_minio_client(instance):
     """ Get the variables out of vault to create Minio Client. """
 
     d = {
@@ -42,12 +43,7 @@ def __get_minio_client__(tenant):
         'MINIO_SECRET_KEY' : None
     }
 
-    if tenant not in ("standard", "premium"):
-        print("Not a valid resource! Options are")
-        print("standard, premium.")
-        print("We will try anyway...")
-
-    vault = f"/vault/secrets/minio-{tenant}-tenant-1"
+    vault = f"/vault/secrets/{instance}"
 
     for var in d:
         CMD = f'echo $(source {vault}; echo ${var})'
@@ -64,16 +60,22 @@ def __get_minio_client__(tenant):
 
     return s3Client
 
+class Instances:
+    clients = []
 
+    def __init__(self):
+        instance_list = get_instances()
+        for i in instance_list:
+            self.add_instance(i)  
 
-def get_standard_client():
-    """Get a connection to the standard Minio tenant"""
-    return __get_minio_client__("standard")
+    def add_instance(self, instance):
+        self.clients.append(instance)
+        # changes '-' to '_' in attribute name to create valid name
+        setattr(self, instance.replace("-", "_"), get_minio_client(instance))  
 
-def get_premium_client():
-    """Get a connection to the premium Minio tenant"""
-    return __get_minio_client__("premium")
-
+def get_instances():
+    instances = [file for file in os.listdir('/vault/secrets') if not file.endswith('.json')]
+    return instances
 
 
 

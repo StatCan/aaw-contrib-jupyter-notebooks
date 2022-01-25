@@ -38,7 +38,8 @@
 #
 #            https://statcan.github.io/daaas/en/Storage/#programmatic-access
 #
-#            Then `source /vault/secrets/minio-standard-tenant-1` and run
+#            Do `ls --ignore='*.json' /vault/secrets` to check MinIO instances, then pick an instance
+#            Then `source /vault/secrets/{instance}` and run
 #
 #                  $ echo $MINIO_ACCESS_KEY
 #                  $ echo $MINIO_SECRET_KEY
@@ -58,7 +59,7 @@ import sys
 #        CONFIG         #
 #########################
 
-TENANT = 'minimal' # options: standard, premium
+TENANT = 'minio' # options: minio or minio-premium
 
 # mandatory. Must get your credentials from Jupyter.
 ACCESS_KEY = 'XXXXXXXX'
@@ -72,7 +73,7 @@ SECRET_KEY = 'YYYYYYYY'
 def get_minio_client():
     """ create Minio Client. """
     # TODO: Accessing this from within the datacenter would be better.
-    URL = f'https://standard-{TENANT}-tenant-1.covid.cloud.statcan.ca'
+    URL = f'https://{TENANT}.aaw.cloud.statcan.ca'  
     SECURE = URL.startswith('https')
     return boto3.client('s3',
                   endpoint_url=URL,

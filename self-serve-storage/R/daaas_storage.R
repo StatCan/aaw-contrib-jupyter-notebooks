@@ -12,8 +12,8 @@
 ###         API         ###
 ###########################
 ###
-###   daaas_storage.standard()      returns NULL
-###   daaas_storage.premium()      returns NULL
+###   daaas_storage.get_client()      returns NULL
+###   daaas_storage.get_instances()      returns NULL
 ###
 ###
 
@@ -25,8 +25,8 @@
 ###
 ###    # Choose from
 ###
-###    daaas_storage.standard()
-###    # daaas_storage.premium()
+###    daaas_storage.get_client(instance) 
+###    daaas_storage.get_instances()
 ###
 ###    ### Note, unlike the python version, these functions
 ###    ### modify the global option, instead of returning a
@@ -39,26 +39,21 @@
 # Source the s3 storage secrets and urls.
 get_bash_variable <- function (location, var) {
     system(
-        sprintf(
-            "bash -c 'source %s; echo $%s'",
-            location,
-            var
-        ),
+        paste("bash -c 'source ", location, "; echo ", var, "'", sep = ""),
         intern = TRUE
     )
 }
 # Just sets the environment variables.
-daaas_storage.__getClient__<- function(storage_type = c("standard", "premium")) {
-    type <- match.arg(storage_type)
+daaas_storage.get_client<- function(instance) {
     env_vars <- c("MINIO_URL", "MINIO_ACCESS_KEY", "MINIO_SECRET_KEY")
-    location <- sprintf("/vault/secrets/minio-%s-tenant-1", type)
+    location <- paste("/vault/secrets/", instance, sep = "")
     minio <- if (requireNamespace("jsonlite", quietly = TRUE)) {
         # jsonlite is installed on the AAW's R image
         # works just as well with RJSONIO::fromJSON or rjson::fromJSON
         jsonlite::fromJSON(paste0(location, ".json"))
     } else {
         lapply(setNames(nm = env_vars), function(x) {
-            system(sprintf("bash -c 'source %s; echo $%s'", location, x), intern = TRUE)
+            system(paste("bash -c 'source ", location, "; echo ", var, "'", sep = ""), intern = TRUE)
         })
     }
     Sys.setenv(
@@ -70,12 +65,11 @@ daaas_storage.__getClient__<- function(storage_type = c("standard", "premium")) 
     )
 }
 
-
-
-daaas_storage.standard <- function () {
-    daaas_storage.__getClient__("standard")
+# List MinIO instances
+daaas_storage.get_instances <- function () {
+    list <- grep(".*(?<!\\.json)$", list.files("/vault/secrets/"), perl=TRUE, value=TRUE)
+    for (i in list) {
+        print(i)
+    }
 }
 
-daaas_storage.premium <- function () {
-    daaas_storage.__getClient__("premium")
-}
