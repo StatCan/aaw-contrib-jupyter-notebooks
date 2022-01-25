@@ -59,7 +59,7 @@ import sys
 #        CONFIG         #
 #########################
 
-TENANT = 'minio-standard' # options: run `ls --ignore='*.*' /vault/secrets` in terminal to see the available minio instances
+TENANT = 'minio' # options: minio or minio-premium
 
 # mandatory. Must get your credentials from Jupyter.
 ACCESS_KEY = 'XXXXXXXX'
@@ -73,7 +73,7 @@ SECRET_KEY = 'YYYYYYYY'
 def get_minio_client():
     """ create Minio Client. """
     # TODO: Accessing this from within the datacenter would be better.
-    URL = f'https://{TENANT}.aaw.cloud.statcan.ca'  # NOTE: URL might be missing a namespace name
+    URL = f'https://{TENANT}.aaw.cloud.statcan.ca'  
     SECURE = URL.startswith('https')
     return boto3.client('s3',
                   endpoint_url=URL,

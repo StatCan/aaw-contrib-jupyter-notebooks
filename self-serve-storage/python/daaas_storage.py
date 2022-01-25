@@ -76,17 +76,17 @@ def get_client(instance):
 
 class Instances:
     clients = []
-    def add_instance(self, instance):
-        self.clients.append(instance)
-        # changes '-' to '_' in attribute name to create valid name
-        setattr(self, instance.replace("-", "_"), get_client(instance)) 
-    
+
     def __init__(self):
         instance_list = get_instances()
         for i in instance_list:
-            self.add_instance(i)           
+            self.add_instance(i)      
+
+    def add_instance(self, instance):
+        self.clients.append(instance)
+        # changes '-' to '_' in attribute name to create valid name
+        setattr(self, instance.replace("-", "_"), get_client(instance))  
             
 def get_instances():
-    files = os.listdir('/vault/secrets')
-    instances = [file for file in files if not file.endswith('.json')]
+    instances = [file for file in os.listdir('/vault/secrets') if not file.endswith('.json')]
     return instances
