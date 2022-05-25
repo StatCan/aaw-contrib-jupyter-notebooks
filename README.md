@@ -1,3 +1,4 @@
+- Authors: Christian Ritter, Blair Drummond, Andrew Scribner
 ## Purpose
 
 This repository is used to hold example Jupyter notebooks and tutorials to help users get started with Data Science and Machine Learning. Example notebooks consists of creating Kubeflow Pipelines, developing Plotly Dash apps, tensorflow, scikitlearn, pytorch and many more! We recommend having first a look at the Quickstart.ipynb.
