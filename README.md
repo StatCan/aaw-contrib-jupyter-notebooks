@@ -8,31 +8,28 @@ Example notebooks are mounted on all user notebooks in the `/aaw-contrib-jupyter
 ## Example Notebooks:
 
 ### Kubeflow-Pipeline Basics:
-Kubeflow Pipelines allows to build and deploy scalable machine learning workflows on Docker containers.
-Contains two basic example notebooks: building a simple pipeline using dockerized components and using lightweight Kubeflow Pipeline components.
-More information about KFP: https://v1-3-branch.kubeflow.org/docs/components/pipelines/overview/pipelines-overview/ KFP SDK API: https://kubeflow-pipelines.readthedocs.io/en/latest/source/kfp.html
+Kubeflow Pipelines allows users to build and deploy scalable machine learning workflows on Docker containers.
+Contains two basic example notebooks: building a simple pipeline using dockerized components and using lightweight Kubeflow pipeline components.
+More information about [`KFP`](https://v1-3-branch.kubeflow.org/docs/components/pipelines/overview/pipelines-overview/) and [`KFP SDK API`](https://kubeflow-pipelines.readthedocs.io/en/latest/source/kfp.html) 
 
 ### Kubeflow-metadata (Move to archive folder, broken)
 
-
-### Mapreduce-Pipeline
-This is another Kubeflow Pipeline example which uses the map-reduce pattern; executing a first step (map) and then aggregating all results from the map in another step (reduce). These examples include pipelines that write data to MinIO.
+### MapReduce-Pipeline
+This is another Kubeflow Pipeline example which uses the map-reduce pattern; executing a first step (map) and then aggregating all results from the map in another step (reduce). These examples also include pipelines that write data to MinIO. 
 
 ### Plotting
-There are 3 examples of plotting libraries used: Jupyter Dash, matplotlib and Plotly. <br />
-
+There are 3 examples of plotting libraries used: Jupyter Dash, Matplotlib and Plotly. <br />
 Using the Jupyter Dash library, it is easy to develop Plotly Dash apps interactively within Jupyter environments.  <br />
+Link to Jupyter Dash Repo: https://github.com/plotly/jupyter-dash <br />
 
-Jupyter Dash Repo: https://github.com/plotly/jupyter-dash <br />
-
-matplotlib leaverages the Jupyter interactive widgets framework, `ipympl` enables the interactive features of matplotlib in the Jupyter notebook and in Jupyterlab. Overview from matplotlib [`readme`](https://github.com/matplotlib/ipympl#ipympl) <br />
+Matplotlib leaverages the Jupyter interactive widgets framework, `ipympl` enables the interactive features of Matplotlib in the Jupyter notebook and in Jupyterlab. Overview from Matplotlib [`readme`](https://github.com/matplotlib/ipympl#ipympl) <br />
 Visit https://matplotlib.org/ for more examples, references and tutorials. 
 
-Plotly is a declarative charting library with over 30 chart types, including scientific charts, 3D graphs, statistical charts, SVG maps, financial charts, and more. Overview from plotly [`readme`](https://github.com/plotly/plotly.py/blob/master/README.md#overview). <br />
-The Jupyter notebook contains examples creating a 3D scatter plot, 3D scatter plot with a regression surface, line plot with adjacent histogram and a bubble map.
+Plotly is a declarative charting library with over 30 chart types, including scientific charts, 3D graphs, statistical charts, SVG maps, financial charts, and more. Overview from Plotly [`readme`](https://github.com/plotly/plotly.py/blob/master/README.md#overview). <br />
+The Jupyter notebook tutorial contains examples creating a 3D scatter plot, 3D scatter plot with a regression surface, line plot with adjacent histogram and a bubble map.
 
 ### Python
-The CANSIM Jupyter notebook explores the CANSIM API. Exploring functions like `getCodeSets`, `getAllCubeList` and `getCubeMetaData` from Statistics Canada's Web Data Service (WDS), downloading it as CSV data files. <br />
+The CANSIM Jupyter notebook explores the CANSIM API created by Statistics Canada. Exploring functions like `getCodeSets`, `getAllCubeList` and `getCubeMetaData` from Statistics Canada's Web Data Service (WDS), downloading it as CSV data files. <br />
 For more information about the WDS, visit: https://www.statcan.gc.ca/eng/developers/wds/user-guide
 
 ### Pytorch
@@ -41,17 +38,14 @@ For more information and tutorials visit [`Pytorch Homepage`](https://pytorch.or
 TorchText library Docs: https://pytorch.org/text/stable/index.html
 
 ### QuerySQL
-This notebooks runs SQL queries on the S3 storage system, Minio. Minio implements the S3 [`SELECT API`](https://docs.min.io/docs/minio-select-api-quickstart-guide.html). It is not effective for creating joins or other relational database tricks, but it's phenomenal at extracting exactly the data that you need, so that your queries are blazingly fast. Examples include querying data with SQL in .csv.gz, .parquet and .csv format.
-
+This notebooks runs SQL queries on the S3 storage system, Minio. Minio's API is compatible with S3 storage [`SELECT API`](https://docs.min.io/docs/minio-select-api-quickstart-guide.html). It is not effective for creating joins or other relational database tricks, but it's phenomenal at extracting exactly the data that you need, so that your queries are blazingly fast. Examples include querying data with SQL in .csv.gz, .parquet and .csv format.
 
 ### R
 Contains a demo of creating scatter plots in R using the `ggplot2` library. Documentation on [`ggplot2`](http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html#Scatterplot) <br />
-
-Contains another Jupyter notebook demo using an interactive worldmap visualization with R, demonstrating how well R and Jupyter work together. 
-
+Also contains a Jupyter notebook demo using an interactive worldmap visualization with R, demonstrating how well R and Jupyter work together. 
 
 ### ScikitLearn
-Using the Iris Dataset with Scikit-Learn, running decision tree classifiers on feature subsets. <br />
+Using the Iris Dataset with Scikit-Learn and running decision tree classifiers on feature subsets. <br />
 Link to Sckitlearn docs https://scikit-learn.org/stable/  
 
 ### Self-serve-storage
