@@ -1,9 +1,6 @@
 ## Purpose
 
-This repository is used to hold example Jupyter notebooks and tutorials to help users get started with Data Science and Machine Learning. Example notebooks consists of creating Kubeflow Pipelines, developing Plotly Dash apps, tensorflow, scikitlearn, pytorch and many more! We recommend having first a look at the Quickstart.ipynb.
-
-## How do the artifacts from this repo get mounted to user notebook pods?
-Example notebooks are mounted on all user notebooks in the `/aaw-contrib-jupyter-notebooks` folder. This is done via the start-custom.sh script in [`aaw-kubeflow-containers`](https://github.com/StatCan/aaw-kubeflow-containers/blob/master/resources/common/start-custom.sh#L7).
+This repository is used to hold example Jupyter notebooks and tutorials to help users get started with Data Science and Machine Learning. We recommend having first a look at the Quickstart.ipynb. The other example notebooks cover creating Kubeflow Pipelines, developing Plotly Dash apps, tensorflow, scikitlearn, pytorch and many more! 
 
 ## Example Notebooks:
 - Authors: Christian Ritter, Blair Drummond, Andrew Scribner
@@ -12,8 +9,6 @@ Example notebooks are mounted on all user notebooks in the `/aaw-contrib-jupyter
 Kubeflow Pipelines allows users to build and deploy scalable machine learning workflows on Docker containers.
 Contains two basic example notebooks: building a simple pipeline using dockerized components and using lightweight Kubeflow pipeline components.
 More information about [`KFP`](https://v1-3-branch.kubeflow.org/docs/components/pipelines/overview/pipelines-overview/) and [`KFP SDK API`](https://kubeflow-pipelines.readthedocs.io/en/latest/source/kfp.html) 
-
-### Kubeflow-metadata (Move to archive folder, broken)
 
 ### MapReduce-Pipeline
 This is another Kubeflow Pipeline example which uses the map-reduce pattern; executing a first step (map) and then aggregating all results from the map in another step (reduce). These examples also include pipelines that write data to MinIO. 
@@ -58,3 +53,6 @@ More information about Web Data Service [`(WDS)`](https://www.statcan.gc.ca/en/d
 
 ### Tensorflow
 A tutorial from the [`TF homepage`](https://www.tensorflow.org/tutorials/keras/classification) using image classification via Keras.
+
+## How can I mount notebooks in user notebooks?
+Example notebooks are mounted on all user notebooks in the `/aaw-contrib-jupyter-notebooks` folder. This is done via the start-custom.sh script in [`aaw-kubeflow-containers`](https://github.com/StatCan/aaw-kubeflow-containers/blob/master/resources/common/start-custom.sh#L7).
