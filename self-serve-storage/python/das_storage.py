@@ -2,7 +2,7 @@
 
 #########################################
 ###                                   ###
-###          daaas_storage.py         ###
+###          das_storage.py         ###
 ###          ~~~~~~~~~~~~~~~~         ###
 ###                                   ###
 ###   Import this from your notebook  ###
@@ -23,10 +23,10 @@
 ###    Usage Example    ###
 ###########################
 ###
-###    import daaas_storage.py
+###    import das_storage.py
 ###
 ###    print(get_instances())   # to see what instances are available
-###    instances = daaas_storage.Instances() 
+###    instances = das_storage.Instances() 
 ###    storage = instances.minio_standard    # choose one of the instances that was printed
 ###
 ###    # This minio client is from minio-py, and you can use it

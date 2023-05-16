@@ -36,7 +36,7 @@
 #
 #      NOTE: To get your ACCESS_KEY and SECRET_KEY, go here for instructions.
 #
-#            https://statcan.github.io/daaas/en/Storage/#programmatic-access
+#            https://statcan.github.io/aaw/en/Storage/#programmatic-access
 #
 #            Do `ls --ignore='*.json' /vault/secrets` to check MinIO instances, then pick an instance
 #            Then `source /vault/secrets/{instance}` and run

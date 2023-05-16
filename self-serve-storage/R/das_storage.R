@@ -1,6 +1,6 @@
 #########################################
 ###                                   ###
-###          daaas_storage.R          ###
+###          das_storage.R          ###
 ###          ~~~~~~~~~~~~~~~          ###
 ###                                   ###
 ###   Source this from your notebook  ###
@@ -12,8 +12,8 @@
 ###         API         ###
 ###########################
 ###
-###   daaas_storage.get_client()      returns NULL
-###   daaas_storage.get_instances()      returns NULL
+###   das_storage.get_client()      returns NULL
+###   das_storage.get_instances()      returns NULL
 ###
 ###
 
@@ -21,12 +21,12 @@
 ###    Usage Example    ###
 ###########################
 ###
-###    source("daaas_storage.R")
+###    source("das_storage.R")
 ###
 ###    # Choose from
 ###
-###    daaas_storage.get_client(instance) 
-###    daaas_storage.get_instances()
+###    das_storage.get_client(instance) 
+###    das_storage.get_instances()
 ###
 ###    ### Note, unlike the python version, these functions
 ###    ### modify the global option, instead of returning a
@@ -44,7 +44,7 @@ get_bash_variable <- function (location, var) {
     )
 }
 # Just sets the environment variables.
-daaas_storage.get_client<- function(instance) {
+das_storage.get_client<- function(instance) {
     env_vars <- c("MINIO_URL", "MINIO_ACCESS_KEY", "MINIO_SECRET_KEY")
     location <- paste("/vault/secrets/", instance, sep = "")
     minio <- if (requireNamespace("jsonlite", quietly = TRUE)) {
@@ -66,7 +66,7 @@ daaas_storage.get_client<- function(instance) {
 }
 
 # List MinIO instances
-daaas_storage.get_instances <- function () {
+das_storage.get_instances <- function () {
     list <- grep(".*(?<!\\.json)$", list.files("/vault/secrets/"), perl=TRUE, value=TRUE)
     for (i in list) {
         print(i)
